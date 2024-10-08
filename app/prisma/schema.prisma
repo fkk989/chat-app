@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String               @id @default(uuid())
+  name         String
+  email        String               @unique
+  password     String?
+  authType     String
+  rooms        Room[]               @relation("roomUser") // Many to many relation with User 
+  adminOfRooms Room[]               @relation("RoomsAdmin") // room for which the user is admin
+  chats        Chat[] // One to many relation with Chat
+  messageReads MessageReadReceipt[] // Relation to track messages read by the user
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt()
+}
+
+model Room {
+  id          Int      @id @default(autoincrement())
+  name        String?
+  users       User[]   @relation("roomUser") // Many to many relation with User
+  chats       Chat[] // One to many relation with Chat
+  isGroupChat Boolean
+  admins      User[]   @relation("RoomsAdmin") //  Many to many relation with User
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt()
+}
+
+model Chat {
+  id        String               @id @default(uuid())
+  content   String
+  userId    String
+  roomId    Int
+  room      Room                 @relation(fields: [roomId], references: [id])
+  user      User                 @relation(fields: [userId], references: [id])
+  readBy    MessageReadReceipt[] // Relation to track users who read the message
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt()
+
+  @@index([userId])
+}
+
+model MessageReadReceipt {
+  userId String
+  chatId String
+  readAt DateTime @default(now())
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chat   Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@id([userId, chatId]) // Ensure that a user can only read a message once
+}
