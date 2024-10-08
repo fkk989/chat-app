@@ -10,7 +10,7 @@ export function createRedisClient() {
     port,
     username,
     // password only required when you use a hosted redis
-    // password,
+    password,
   });
 
   return client;
