@@ -1,14 +1,19 @@
 import { ChatPanelContextProp, useChatPanle } from "@/context/ChatPanelContext";
-import { ChatResponse, Payload } from "@/utils/types";
+import { ChatResponse, MessageType, Payload } from "@/utils/types";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { addMessageToDb, useSetUnreadMessage } from "../chats";
+import {
+  addMessageToDb,
+  useSetLatestMessage,
+  useSetUnreadMessage,
+} from "../chats";
+import { debounce } from "../user";
 
 // prduction
 // const WEB_SOCKET_URL = "wss://highly-scaleable-chat-app-1.onrender.com";
 // dev
-const WEB_SOCKET_URL = "http://localhost:8000";
+const WEB_SOCKET_URL = "ws://localhost:8000";
 
 // this function will put the room with latest message on top
 export function reshuffleRooms({
@@ -40,17 +45,13 @@ export function reshuffleRooms({
 }
 
 export function useWebSocket({ roomId }: { roomId?: number }) {
+  //
   const { addUnreadMessage, updateMessageStatus } = useSetUnreadMessage();
   const { data: sessionData } = useSession();
-  const {
-    selectedRoom,
-    selectedUser,
-    setRooms,
-    rooms,
-    setLatestMessages,
-    setRoomMessages,
-  } = useChatPanle();
-
+  const { selectedRoom, selectedUser, setRooms, rooms, setRoomMessages } =
+    useChatPanle();
+  const { updateLatestMessage } = useSetLatestMessage();
+  //
   useEffect(() => {
     if (sessionData && roomId) {
       // Only connect when session data is available
@@ -77,29 +78,29 @@ export function useWebSocket({ roomId }: { roomId?: number }) {
           roomId: string;
           messageId: string;
           createdAt: Date;
+          userName: string;
         };
 
-        //setting latest message
-        setLatestMessages((currentMessage) => {
-          const updatedMessag: ChatPanelContextProp["latestMessages"] = {
-            ...currentMessage,
-            [`${roomId}`]: data.message,
-          };
-          return updatedMessag;
-        });
+        const tempMessageObj: ChatResponse = {
+          id: data.messageId,
+          roomId: parseInt(data.roomId),
+          content: data.message,
+          createdAt: data.createdAt,
+          updatedAt: data.createdAt,
+          userId: data.userId,
+          user: {
+            name: data.userName,
+          },
+          readBy: [],
+        };
 
         reshuffleRooms({ roomId, rooms, setRooms });
+        //TODO:SET LATEST MESSAGE
+
+        updateLatestMessage(`${roomId}`, tempMessageObj);
 
         if (selectedRoom && selectedRoom.id === roomId) {
           setRoomMessages((currentMessages) => {
-            const tempMessageObj: ChatResponse = {
-              id: data.messageId,
-              roomId: parseInt(data.roomId),
-              content: data.message,
-              createdAt: data.createdAt,
-              updatedAt: data.createdAt,
-              userId: data.userId,
-            };
             const updatedMessages = [...currentMessages, tempMessageObj];
             return updatedMessages;
           });
@@ -151,6 +152,7 @@ export function useWebSocket({ roomId }: { roomId?: number }) {
 //send message
 export const useSendMessage = (roomId?: number) => {
   const { data: sessionData } = useSession();
+  const { isFriendTyping, selectedRoom } = useChatPanle();
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -160,6 +162,7 @@ export const useSendMessage = (roomId?: number) => {
       payload: {
         roomId: string;
         userId: string;
+        userName: string;
         message: string;
         messageId?: string;
       };
@@ -186,9 +189,8 @@ export const useSendMessage = (roomId?: number) => {
             },
           })
         );
-        // send message from the queue
 
-        // console.log("pending messages", messageQueue.current);
+        // send message from the queue
         while (messageQueue.current.length > 0) {
           const message = messageQueue.current.shift();
 
@@ -216,7 +218,7 @@ export const useSendMessage = (roomId?: number) => {
     payload: Omit<Payload<"message">, "userId">
   ) => {
     if (!sessionData) {
-      return toast.error("Session invalid");
+      return toast.error("Not loged in");
     }
 
     const messageRespones = await addMessageToDb(
@@ -230,6 +232,7 @@ export const useSendMessage = (roomId?: number) => {
         payload: {
           roomId: payload.roomId,
           userId: sessionData.user.userId,
+          userName: sessionData.user.name,
           message: payload.message,
           messageId: messageRespones!.createdMessage.id,
         },
@@ -243,7 +246,8 @@ export const useSendMessage = (roomId?: number) => {
         payload: {
           ...payload,
           messageId: messageRespones!.createdMessage.id,
-          userId: sessionData.user.userId, // Ensure userId from session is included
+          userId: sessionData.user.userId,
+          userName: sessionData.user.name,
         },
       })
     );
@@ -255,5 +259,45 @@ export const useSendMessage = (roomId?: number) => {
     isConnected,
   ]);
 
-  return { sendMessage };
+  const handleSendTypingNotifiction = () => {
+    if (!sessionData) {
+      toast.error("Not loged in");
+      return;
+    }
+
+    if (!socket || !isConnected || !selectedRoom) {
+      return;
+    }
+    if (isFriendTyping[`${selectedRoom.id}`]) {
+      socket.send(
+        JSON.stringify({
+          type: "typing",
+          payload: {
+            roomId,
+            userId: sessionData.user.userId,
+          },
+        })
+      );
+    }
+
+    debounce((roomId: string) => {
+      socket.send(
+        JSON.stringify({
+          type: "no-typing",
+          payload: {
+            roomId,
+            userId: sessionData.user.userId,
+          },
+        })
+      );
+    }, 1000)(`${selectedRoom.id}`);
+  };
+
+  const sendTypingNotification = useCallback(handleSendTypingNotifiction, [
+    roomId,
+    socket,
+    isConnected,
+  ]);
+
+  return { sendMessage, sendTypingNotification };
 };

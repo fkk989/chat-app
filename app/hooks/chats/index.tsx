@@ -160,7 +160,6 @@ export function useSetUnreadMessage() {
   async function updateMessageStatus(roomId: number, messageId?: string) {
     try {
       const messages = unreadMessages[`${roomId}`];
-      console.log("messages to mark read", messages);
       if (messages || messageId) {
         const data = (
           await axios.patch("/api/v1/messages", {
@@ -175,3 +174,19 @@ export function useSetUnreadMessage() {
   return { addUnreadMessage, removeUnreadMessages, updateMessageStatus };
 }
 //
+export function useSetLatestMessage() {
+  const { setLatestMessages } = useChatPanle();
+  //
+  function updateLatestMessage(roomId: string, message: ChatResponse) {
+    setLatestMessages((currentMessages) => {
+      if (message) {
+        const updatedMessages = { ...currentMessages, [roomId]: message };
+        console.log("updated message", updatedMessages);
+        return updatedMessages;
+      }
+      return currentMessages;
+    });
+  }
+
+  return { updateLatestMessage };
+}

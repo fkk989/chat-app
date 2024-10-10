@@ -4,9 +4,11 @@ import { Form } from "./Form";
 import { signUpFomrSchema } from "@/utils/schemas";
 import { GithubLogin, GoolgeLogin } from "../buttons";
 import { useSignup } from "@/hooks";
+import { useRouter } from "next/navigation";
 
 //
 export const SignUpForm = () => {
+  const navigate = useRouter();
   const { mutation } = useSignup();
 
   function onSubmitHandler(data: any) {
@@ -49,6 +51,17 @@ export const SignUpForm = () => {
           </div>
         </Form.Submit>
       </Form.Root>
+      <div
+        onClick={() => {
+          navigate.push("/login");
+        }}
+        className="w-[90%] flex justify-end items-center gap-[5px] px-[5px] font-[500]"
+      >
+        Already have a account?{" "}
+        <button className="text-[17px] text-[#4284F3] hover:text-[#6293e9] font-bold">
+          login
+        </button>
+      </div>
     </div>
   );
 };

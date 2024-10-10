@@ -2,7 +2,8 @@ import { useChatPanle } from "@/context/ChatPanelContext";
 import { useSetUnreadMessage } from "@/hooks";
 import { useWebSocket } from "@/hooks/websocket";
 import clsx from "clsx";
-import React from "react";
+import { useSession } from "next-auth/react";
+import React, { useEffect } from "react";
 import { BiSolidUser } from "react-icons/bi";
 
 type UserInfoCardProp = {
@@ -16,9 +17,16 @@ type UserInfoCardProp = {
 };
 
 export const UserInfoCard: React.FC<UserInfoCardProp> = (prop) => {
+  const { data: sessionData } = useSession();
+  if (!sessionData) return <></>;
   //
-  const { selectedUser, selectedRoom, unreadMessages, latestMessages } =
-    useChatPanle();
+  const {
+    selectedUser,
+    selectedRoom,
+    unreadMessages,
+    latestMessages,
+    setRoomMessages,
+  } = useChatPanle();
   //
 
   useWebSocket({
@@ -61,19 +69,34 @@ export const UserInfoCard: React.FC<UserInfoCardProp> = (prop) => {
           {!prop.isGroupChat ? prop.name?.split(" ")[0] : prop.name}
         </h2>
         <h2 className="w-full flex justify-end items-center text-white text-[15px]">
-          <div className="w-full">
-            {" "}
+          <div className="w-full flex items-center">
+            {/* if search user show only email  */}
+            {prop.isSearchUser && <p className="">{prop.email}</p>}
+
             {latestMessages[`${prop.roomId}`] && !prop.isSearchUser && (
               <div className="w-full flex items-center">
                 <span>
-                  {latestMessages[`${prop.roomId}`].slice(0, 30)}{" "}
+                  {/* if group chat show user who send the message except the loged in user */}
+                  {prop.isGroupChat &&
+                    latestMessages[`${prop.roomId}`].userId !==
+                      sessionData.user.userId && (
+                      <span className="font-bold">
+                        {latestMessages[`${prop.roomId}`].user.name.split(
+                          " "
+                        )[0] + ": "}
+                      </span>
+                    )}
+                  {latestMessages[`${prop.roomId}`].content.slice(0, 30)}{" "}
+                  {/* slice message and add dots inf message length excedes */}
                   <span className="text-[18px]">
-                    {latestMessages[`${prop.roomId}`].length > 30 && "........"}
+                    {latestMessages[`${prop.roomId}`].content.length > 30 &&
+                      "........"}
                   </span>
                 </span>
               </div>
             )}
           </div>
+
           {unreadMessages[`${prop?.roomId}`] && (
             <p className="absolute right-[10px] w-[20px] h-[20px] flex justify-center items-center bg-[#04A784] rounded-full text-black text-[14px] font-[500] ">
               {" "}

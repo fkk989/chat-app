@@ -31,8 +31,12 @@ wss.on("connection", (ws: CustomWebSocket, req) => {
         webSocketService.addUser({ roomId, userId, ws });
       }
 
-      if (parsedMessage.type === "message") {
-        const payload = parsedMessage.payload as Payload<"message">;
+      if (
+        parsedMessage.type === "message" ||
+        parsedMessage.type === "typing" ||
+        parsedMessage.type === "not-typing"
+      ) {
+        const payload = parsedMessage.payload;
         webSocketService.publishMessage(payload);
       }
     } catch (e: any) {

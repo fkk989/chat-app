@@ -5,26 +5,24 @@
 body {
   overscroll-behavior: none; /* Disable the scroll bounce effect */
 }
-/* scrollbar css  */
-/* Target the whole scrollbar */
+body {
+  overflow: auto;
+  overscroll-behavior: none; /* Disable the scroll bounce effect */
+}
+
+/* Only show the styled scrollbar while scrolling */
 ::-webkit-scrollbar {
-  width: 5px; /* Width of the scrollbar */
+  width: 5px;
+  background-color: transparent;
 }
 
-/* Target the scrollbar track (background area) */
 ::-webkit-scrollbar-track {
-  background: transparent; /* Track color */
+  background: transparent;
 }
 
-/* Target the scrollbar thumb (the draggable part) */
-::-webkit-scrollbar-thumb {
-  background-color: #2b373d; /* Thumb color */
-  border-radius: 10px; /* Rounded corners */
-}
-
-/* Hover effect on the thumb */
-::-webkit-scrollbar-thumb:hover {
-  background-color: #555; /* Darker color on hover */
+*::-webkit-scrollbar-thumb {
+  background-color: #343e43;
+  border-radius: 10px;
 }
 
 @keyframes rotate-180 {

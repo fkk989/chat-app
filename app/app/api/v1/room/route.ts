@@ -53,6 +53,9 @@ export const GET = async (req: NextRequest) => {
             ],
           },
           include: {
+            user: {
+              select: { name: true },
+            },
             readBy: {
               select: {
                 user: { select: { id: true } },

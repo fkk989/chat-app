@@ -111,19 +111,11 @@ export class WebSocketService {
     });
   }
 
-  public publishMessage({
-    roomId,
-    message,
-    messageId,
-    userId,
-  }: Payload<"message">): void {
+  public publishMessage(payload: Payload<"message">): void {
     this.pub.publish(
-      roomId,
+      payload.roomId,
       JSON.stringify({
-        message,
-        userId,
-        roomId,
-        messageId,
+        ...payload,
         createdAt: new Date(Date.now()),
       }),
       (err) => {

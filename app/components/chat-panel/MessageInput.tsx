@@ -16,7 +16,9 @@ const MessageInput: React.FC<MessageInputProp> = ({
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit();
+        if (input.trim()) {
+          onSubmit();
+        }
       }}
       className="flex w-full  items-center justify-center"
     >

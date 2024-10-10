@@ -6,7 +6,8 @@ declare module "next-auth" {
       userId: string;
       userAuthToken?: string;
       imageUrl?: string;
-      name?: string;
+      name: string;
+      email: string;
     };
   }
   interface User {
@@ -25,5 +26,6 @@ declare module "next-auth/jwt" {
     userId: string;
     userAuthToken?: string;
     imageUrl?: string;
+    email: string;
   }
 }

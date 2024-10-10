@@ -4,16 +4,21 @@ import { Sidebar } from "../Sidebar";
 import { ChatRoomsSection } from "./ChatRoomsSection";
 import { Chats } from "./Chats";
 import { useChatPanle } from "@/context/ChatPanelContext";
+import { Profile } from "../tabs";
 
 export const Chatpanel = () => {
-  const { selectedUser, selectedRoom } = useChatPanle();
+  const { selectedUser, selectedRoom, selectedTab } = useChatPanle();
   useEffect(() => {});
   return (
     <div className="w-full h-full flex">
       {/* side bar */}
       <Sidebar />
       {/* all friends */}
-      <ChatRoomsSection />
+      {selectedTab === "chats" ? (
+        <ChatRoomsSection />
+      ) : (
+        selectedTab === "profile" && <Profile />
+      )}
       {/* chats messages */}
       {selectedUser || selectedRoom ? (
         <Chats />

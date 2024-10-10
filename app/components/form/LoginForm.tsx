@@ -54,6 +54,17 @@ export const LoginForm = () => {
           </div>
         </Form.Submit>
       </Form.Root>
+      <div
+        onClick={() => {
+          navigate.push("/signup");
+        }}
+        className="w-[90%] flex justify-end items-center gap-[5px] px-[5px] font-[500]"
+      >
+        Dont have a account?{" "}
+        <button className="text-[17px] text-[#4284F3] hover:text-[#6293e9] font-bold">
+          Sign Up
+        </button>
+      </div>
     </div>
   );
 };

@@ -20,6 +20,13 @@ export const GET = async (req: NextRequest) => {
 
     const messages = await prisma.chat.findMany({
       where: { room: { id: parseInt(roomId) } },
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
     return generateResponse(200, true, "fetched room messages successfully", {
       chats: messages,

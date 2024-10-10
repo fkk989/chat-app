@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { Children } from "react";
+
 import { z } from "zod";
 import {
   createContext,
@@ -13,6 +14,8 @@ import {
   UseFormRegister,
   FormState,
 } from "react-hook-form";
+import { ChildProcess } from "child_process";
+import { restrictChildrenType } from "@/utils/helpers/restrictChildrenType";
 
 export interface SchemaProp {
   type:
@@ -62,7 +65,12 @@ const Root: React.FC<FormProp> = ({
   schema,
 }) => {
   const { register, handleSubmit, formState, setError } = useForm<any>();
-  //
+  // throwing error when user users  button tag inside Form.Root
+  restrictChildrenType(
+    "button",
+    children,
+    "please dont user any  button tags inside Form.Root as its will trigger the form if you need some extra button put them outside the Form.Root for example"
+  );
   return (
     <FormContext.Provider value={{ onSubmit, schema, register, formState }}>
       <form
@@ -104,7 +112,7 @@ function generateErrorMessagePassword(value: string) {
   }
   return "";
 }
-
+//
 const Input: React.FC<SchemaProp> = ({
   props,
   validation,
@@ -136,6 +144,7 @@ const Input: React.FC<SchemaProp> = ({
           <input
             {...props}
             id={props?.name}
+            autoComplete={"current-password"}
             {...register(props?.name!, {
               required: `${props?.name} is required`,
               maxLength: max_length,
@@ -172,7 +181,7 @@ const Input: React.FC<SchemaProp> = ({
     </div>
   );
 };
-
+//
 const InputGroup: React.FC<SchemaProp> = ({ group }) => {
   const {
     formState: { errors },
@@ -185,7 +194,7 @@ const InputGroup: React.FC<SchemaProp> = ({ group }) => {
     </div>
   );
 };
-
+//
 const Content = () => {
   const { schema } = useContext(FormContext)!;
 
@@ -203,7 +212,7 @@ const Content = () => {
     </>
   );
 };
-
+//
 const Submit: React.FC<{
   className?: string;
   style?: CSSProperties;
@@ -213,6 +222,7 @@ const Submit: React.FC<{
   const {
     formState: { isSubmitting },
   } = useContext(FormContext)!;
+
   return (
     <button
       disabled={isSubmitting}

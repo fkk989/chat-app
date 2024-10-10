@@ -116,6 +116,7 @@ export const authOptions: NextAuthOptions = {
       if (user && account) {
         token.userId = user?.id as string;
         token.imageUrl = user?.avatar_url;
+        token.email = user.email;
         token.userAuthToken = account?.access_token;
       }
       return token;
@@ -124,6 +125,7 @@ export const authOptions: NextAuthOptions = {
       session.user.userAuthToken = token.userAuthToken;
       session.user.userId = token.userId;
       session.user.imageUrl = token.imageUrl;
+      session.user.email = token?.email;
       return session;
     },
   },

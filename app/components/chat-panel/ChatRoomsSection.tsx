@@ -2,10 +2,15 @@ import { useSession } from "next-auth/react";
 import React, { useEffect } from "react";
 import { MdOutlineAddToPhotos } from "react-icons/md";
 import { SearchBar } from "./SearchBar";
-import { useGetUserChats, useSetUnreadMessage } from "@/hooks";
+import {
+  useGetUserChats,
+  useSetLatestMessage,
+  useSetUnreadMessage,
+} from "@/hooks";
 import { UserInfoCard } from "./UserInfoCard";
 import { Room, useChatPanle } from "@/context/ChatPanelContext";
 import { handleUserInfoOnClick } from "@/utils/helpers/chatHelper";
+import { MoreOptionsDropdown } from "../dropdowns";
 
 export const ChatRoomsSection = () => {
   const session = useSession();
@@ -16,13 +21,14 @@ export const ChatRoomsSection = () => {
     setSelectedRoom,
     selectedRoom,
     setSelectedUser,
-    setLatestMessages,
     temporaryRoom,
     setTemporaryRoom,
     unreadMessages,
   } = useChatPanle();
 
   const { addUnreadMessage } = useSetUnreadMessage();
+
+  const { updateLatestMessage } = useSetLatestMessage();
 
   useEffect(() => {
     if (query.isError) {
@@ -32,7 +38,6 @@ export const ChatRoomsSection = () => {
 
   useEffect(() => {
     if (rooms && session && session.data) {
-      console.log("rooms....", rooms);
       rooms.map((prop, index) => {
         if (prop.id) {
           prop.chats.forEach((chat) => {
@@ -44,17 +49,7 @@ export const ChatRoomsSection = () => {
             }
           });
           //
-          setLatestMessages((currentState) => {
-            if (!currentState[`${prop.id}`]) {
-              const updatedState = {
-                ...currentState,
-                [`${prop.id}`]: prop.chats[0]?.content || "",
-              };
-              return updatedState;
-            }
-
-            return currentState;
-          });
+          updateLatestMessage(`${prop.id}`, prop.chats[0]);
           //
         }
       });
@@ -66,7 +61,10 @@ export const ChatRoomsSection = () => {
       {/* top bar */}
       <div className="flex items-center justify-between px-[30px] mt-[20px]">
         <h1 className="text-[25px] text-white font-bold">Chats</h1>
-        <MdOutlineAddToPhotos className="text-[25px] text-gray-400 hover:text-white cursor-pointer " />
+        <div className="flex items-center gap-[15px]">
+          <MdOutlineAddToPhotos className="text-[25px] text-gray-400 hover:text-white cursor-pointer" />
+          <MoreOptionsDropdown />
+        </div>
       </div>
       {/* search bar */}
 

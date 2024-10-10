@@ -16,7 +16,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Chit Chat",
+  title: "Chat Aura",
   description: "A chat application for everyone",
 };
 

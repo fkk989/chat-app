@@ -2,7 +2,7 @@
 import { Room, useChatPanle } from "@/context/ChatPanelContext";
 import { useSendMessage } from "@/hooks/websocket";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { BiSolidUser } from "react-icons/bi";
 import MessageInput from "./MessageInput";
 import { useCreateRoom, useGetRoomChats } from "@/hooks";
@@ -11,10 +11,15 @@ import { MessageCards } from "./MessageCards";
 
 export const Chats = () => {
   //
+  const [isTyping, setIsTyping] = useState(false);
+  const messageBox = useRef<HTMLDivElement | null>(null);
   const [input, setInput] = useState("");
-  const { selectedUser, selectedRoom, unreadMessages } = useChatPanle();
+  const { selectedUser, selectedRoom, unreadMessages, latestMessages } =
+    useChatPanle();
   //
-  const { sendMessage } = useSendMessage(selectedRoom?.id);
+  const { sendMessage, sendTypingNotification } = useSendMessage(
+    selectedRoom?.id
+  );
 
   const { mutation: createRoomMutation } = useCreateRoom();
   //
@@ -25,12 +30,15 @@ export const Chats = () => {
     setMessages,
   } = useGetRoomChats(selectedRoom?.id);
 
-  useEffect(() => {
-    console.log(unreadMessages[`${selectedRoom?.id}`]);
-    if (roomMessages) {
-      console.log("Room message", roomMessages);
+  // Step 2: Scroll to the bottom of the chat when the component mounts or messages change
+  const handleScrollBottoom = () => {
+    if (messageBox.current) {
+      messageBox.current.scrollTop = messageBox.current.scrollHeight;
     }
-  }, [roomMessages, unreadMessages]);
+  };
+  useEffect(() => {
+    handleScrollBottoom();
+  }, [roomMessages, messageBox]);
 
   useEffect(() => {
     if (!selectedRoom) {
@@ -58,13 +66,12 @@ export const Chats = () => {
     }
     setInput("");
   }, [selectedUser, selectedRoom, input]);
-
   //
   return (
-    <div className=" relative w-full h-full overflow-hidden ">
+    <div className="  w-full h-full flex flex-col  overflow-hidden ">
       {/* topbar */}
 
-      <div className=" absolute top-0 w-full h-[60px] flex  items-center justify-between  bg-[#1F2C33] pl-[20px] pr-[20px]">
+      <div className="  w-full h-[60px] flex  items-center justify-between  bg-[#1F2C33] pl-[20px] pr-[20px]">
         <div className="flex items-center gap-[20px]">
           {/* profile pic */}
           <div
@@ -84,18 +91,31 @@ export const Chats = () => {
 
       {/* chats*/}
       <div
-        className="w-full h-full flex flex-col  justify-end gap-[10px]  bg-[#0c1318f0] bg-blend-multiply bg-repeat overflow-scroll py-[80px] px-[30px]"
+        className="relative w-full h-[calc(100%-5px)]   items-center bg-[#0c1318f0] bg-blend-multiply overflow-hidden"
         style={{
           backgroundImage: "url('/chat-bg.png')",
           backgroundSize: "calc(100%/3)",
         }}
       >
-        {roomMessages.map((prop) => {
-          return <MessageCards {...{ ...prop }} />;
-        })}
+        <div
+          ref={messageBox}
+          className="absolute bottom-0 w-full max-h-full flex flex-col gap-[8px] py-[20px]  items-center  overflow-y-scroll overflow-x-hidden"
+        >
+          {roomMessages.map((prop) => {
+            return (
+              <MessageCards
+                key={prop.id}
+                isGroupChat={selectedRoom?.isGroupChat}
+                sendTypingNotification={sendTypingNotification}
+                {...{ ...prop }}
+              />
+            );
+          })}
+        </div>
       </div>
+
       {/* input bar */}
-      <div className="absolute bottom-0 w-full h-[70px] flex items-center justify-center bg-[#1F2C33]">
+      <div className=" w-full h-[70px] flex items-center justify-center bg-[#1F2C33]">
         {/* input  */}
         <MessageInput
           input={input}
