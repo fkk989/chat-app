@@ -1,51 +1,67 @@
 "use client";
-import { Room, useChatPanle } from "@/context/ChatPanelContext";
+import { useChatPanle } from "@/context/ChatPanelContext";
 import { useSendMessage } from "@/hooks/websocket";
-
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { BiSolidUser } from "react-icons/bi";
 import MessageInput from "./MessageInput";
 import { useCreateRoom, useGetRoomChats } from "@/hooks";
 import toast from "react-hot-toast";
 import { MessageCards } from "./MessageCards";
+import { PageObserver } from "../PageObserver";
 
+//
 export const Chats = () => {
+  //using page and limit state for infinty scroll
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   //
-  const [isTyping, setIsTyping] = useState(false);
   const messageBox = useRef<HTMLDivElement | null>(null);
   const [input, setInput] = useState("");
-  const { selectedUser, selectedRoom, unreadMessages, latestMessages } =
-    useChatPanle();
+  const { selectedUser, selectedRoom, isTypingInTheRoom } = useChatPanle();
   //
-  const { sendMessage, sendTypingNotification } = useSendMessage(
-    selectedRoom?.id
-  );
-
+  const { sendMessage, sendTypingNotification, sendUserStopTyping } =
+    useSendMessage(selectedRoom?.id);
+  //
   const { mutation: createRoomMutation } = useCreateRoom();
   //
 
+  //
   const {
     query,
     messages: roomMessages,
-    setMessages,
-  } = useGetRoomChats(selectedRoom?.id);
-
-  // Step 2: Scroll to the bottom of the chat when the component mounts or messages change
-  const handleScrollBottoom = () => {
-    if (messageBox.current) {
-      messageBox.current.scrollTop = messageBox.current.scrollHeight;
-    }
-  };
+    setMessages: setRoomMessages,
+  } = useGetRoomChats({
+    roomId: selectedRoom?.id,
+    page,
+    limit,
+  });
+  //Scroll to the bottom of the chat when the component mounts or messages change
+  const handleScrollBottoom = useCallback(
+    (heightToscroll: number) => {
+      if (messageBox.current) {
+        messageBox.current.scrollTop = heightToscroll;
+      }
+    },
+    [messageBox]
+  );
+  //
   useEffect(() => {
-    handleScrollBottoom();
+    if (!messageBox.current) return;
+    // only scroll
+    if (page === 1 && roomMessages.length > 0) {
+      handleScrollBottoom(messageBox.current.scrollHeight);
+    }
   }, [roomMessages, messageBox]);
-
+  //
   useEffect(() => {
-    if (!selectedRoom) {
-      setMessages([]);
-    }
+    //reseting page on change of room and reseting messages
+    setPage(1);
+    setInput("");
     if (selectedRoom) {
       query.refetch();
+    }
+    if (!selectedRoom) {
+      setRoomMessages([]);
     }
   }, [selectedRoom]);
 
@@ -71,7 +87,7 @@ export const Chats = () => {
     <div className="  w-full h-full flex flex-col  overflow-hidden ">
       {/* topbar */}
 
-      <div className="  w-full h-[60px] flex  items-center justify-between  bg-[#1F2C33] pl-[20px] pr-[20px]">
+      <div className="  w-full h-[70px] flex  justify-between items-center  bg-[#1F2C33] pl-[20px] pr-[20px]">
         <div className="flex items-center gap-[20px]">
           {/* profile pic */}
           <div
@@ -85,42 +101,57 @@ export const Chats = () => {
           <h2 className="text-white font-bold">
             {(selectedRoom && selectedRoom.name) ||
               (selectedUser && selectedUser.name.split(" ")[0])}
+            {isTypingInTheRoom[`${selectedRoom?.id}`]?.isTyping && (
+              <p className="text-[14px]">typing...</p>
+            )}
           </h2>
         </div>
       </div>
 
       {/* chats*/}
       <div
-        className="relative w-full h-[calc(100%-5px)]   items-center bg-[#0c1318f0] bg-blend-multiply overflow-hidden"
+        ref={messageBox}
+        className="relative w-full h-full flex flex-col-reverse gap-[7px] bg-[#0c1318f0] bg-blend-multiply  overflow-y-scroll overflow-x-hidden px-[30px] py-[30px]"
         style={{
           backgroundImage: "url('/chat-bg.png')",
           backgroundSize: "calc(100%/3)",
         }}
       >
-        <div
-          ref={messageBox}
-          className="absolute bottom-0 w-full max-h-full flex flex-col gap-[8px] py-[20px]  items-center  overflow-y-scroll overflow-x-hidden"
-        >
-          {roomMessages.map((prop) => {
-            return (
-              <MessageCards
-                key={prop.id}
-                isGroupChat={selectedRoom?.isGroupChat}
-                sendTypingNotification={sendTypingNotification}
-                {...{ ...prop }}
-              />
-            );
-          })}
-        </div>
+        {roomMessages.map((prop, index) => {
+          return (
+            <MessageCards
+              // last ten elem dropdown should open on top
+              dropDownOnTop={index <= 3}
+              key={prop.id}
+              isGroupChat={selectedRoom?.isGroupChat}
+              {...{ ...prop }}
+            />
+          );
+        })}
+        {/* when observer come into the window view it will refetch message with new page and limit */}
+        {selectedRoom && roomMessages.length >= 20 && (
+          <PageObserver
+            setRoomMessage={setRoomMessages}
+            roomMessages={roomMessages}
+            roomId={selectedRoom.id}
+            limit={limit}
+            setLimit={setLimit}
+            page={page}
+            setPage={setPage}
+          />
+        )}
       </div>
 
       {/* input bar */}
       <div className=" w-full h-[70px] flex items-center justify-center bg-[#1F2C33]">
         {/* input  */}
         <MessageInput
+          isTypingInTheRoom={isTypingInTheRoom}
           input={input}
           setInput={setInput}
           onSubmit={handleSendMessage}
+          sendTypingNotification={sendTypingNotification}
+          sendUserStopTyping={sendUserStopTyping}
         />
       </div>
     </div>

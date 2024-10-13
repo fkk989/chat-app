@@ -8,9 +8,9 @@ import {
   useSetUnreadMessage,
 } from "@/hooks";
 import { UserInfoCard } from "./UserInfoCard";
-import { Room, useChatPanle } from "@/context/ChatPanelContext";
+import { useChatPanle } from "@/context/ChatPanelContext";
 import { handleUserInfoOnClick } from "@/utils/helpers/chatHelper";
-import { MoreOptionsDropdown } from "../dropdowns";
+import { AllChatMoreOption } from "../dropdowns";
 
 export const ChatRoomsSection = () => {
   const session = useSession();
@@ -57,13 +57,13 @@ export const ChatRoomsSection = () => {
   }, [rooms, session, session.data]);
 
   return (
-    <div className="w-[45%] h-full flex flex-col bg-[#111B21] border-l-[1px] border-r-[1px] border-[#ffffff30] ">
+    <div className="w-[45%] h-full flex flex-col bg-[#111B21] border-l-[1px] border-r-[1px] border-[#ffffff30]">
       {/* top bar */}
       <div className="flex items-center justify-between px-[30px] mt-[20px]">
         <h1 className="text-[25px] text-white font-bold">Chats</h1>
         <div className="flex items-center gap-[15px]">
           <MdOutlineAddToPhotos className="text-[25px] text-gray-400 hover:text-white cursor-pointer" />
-          <MoreOptionsDropdown />
+          <AllChatMoreOption />
         </div>
       </div>
       {/* search bar */}

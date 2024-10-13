@@ -48,8 +48,14 @@ export function useWebSocket({ roomId }: { roomId?: number }) {
   //
   const { addUnreadMessage, updateMessageStatus } = useSetUnreadMessage();
   const { data: sessionData } = useSession();
-  const { selectedRoom, selectedUser, setRooms, rooms, setRoomMessages } =
-    useChatPanle();
+  const {
+    selectedRoom,
+    selectedUser,
+    setRooms,
+    rooms,
+    setRoomMessages,
+    setIsTypingInTheRoom,
+  } = useChatPanle();
   const { updateLatestMessage } = useSetLatestMessage();
   //
   useEffect(() => {
@@ -58,7 +64,6 @@ export function useWebSocket({ roomId }: { roomId?: number }) {
       const socket = new WebSocket(WEB_SOCKET_URL);
 
       socket.onopen = () => {
-        console.log("websocket connected to", roomId);
         socket.send(
           JSON.stringify({
             type: "join",
@@ -72,78 +77,120 @@ export function useWebSocket({ roomId }: { roomId?: number }) {
 
       // Handle WebSocket message event
       socket.onmessage = async (event) => {
-        const data = JSON.parse(event.data) as {
-          message: string;
-          userId: string;
-          roomId: string;
-          messageId: string;
-          createdAt: Date;
-          userName: string;
+        const { type, payload } = JSON.parse(event.data) as {
+          type: MessageType;
+          payload: {
+            message: string;
+            userId: string;
+            roomId: string;
+            messageId: string;
+            createdAt: Date;
+            userName: string;
+          };
         };
 
-        const tempMessageObj: ChatResponse = {
-          id: data.messageId,
-          roomId: parseInt(data.roomId),
-          content: data.message,
-          createdAt: data.createdAt,
-          updatedAt: data.createdAt,
-          userId: data.userId,
-          user: {
-            name: data.userName,
-          },
-          readBy: [],
-        };
+        if (type === "message") {
+          const tempMessageObj: ChatResponse = {
+            id: payload.messageId,
+            roomId: parseInt(payload.roomId),
+            content: payload.message,
+            createdAt: payload.createdAt,
+            updatedAt: payload.createdAt,
+            userId: payload.userId,
+            user: {
+              name: payload.userName,
+            },
+            readBy: [],
+          };
 
-        reshuffleRooms({ roomId, rooms, setRooms });
-        //TODO:SET LATEST MESSAGE
+          reshuffleRooms({ roomId, rooms, setRooms });
+          //TODO:SET LATEST MESSAGE
 
-        updateLatestMessage(`${roomId}`, tempMessageObj);
+          updateLatestMessage(`${roomId}`, tempMessageObj);
 
-        if (selectedRoom && selectedRoom.id === roomId) {
-          setRoomMessages((currentMessages) => {
-            const updatedMessages = [...currentMessages, tempMessageObj];
-            return updatedMessages;
-          });
+          if (selectedRoom && selectedRoom.id === roomId) {
+            // if loged in user is sending message play this sound or else receiving message
+            if (payload.userId === sessionData.user.userId) {
+              const message = new Audio("/sending-message.mp3");
+              await message.play().catch((e) => {
+                console.error("Error playing sound:", e);
+              });
+            } else {
+              const message = new Audio("/message.mp3");
+              await message.play().catch((e) => {
+                console.error("Error playing sound:", e);
+              });
+              updateMessageStatus(roomId, payload.messageId);
+            }
+            // updating message status to true if room is selected room is selected
+            //
+            setRoomMessages((currentMessages) => {
+              const updatedMessages = [...currentMessages, tempMessageObj];
+              return updatedMessages;
+            });
+          }
+
+          // notification
+          if (selectedRoom && selectedRoom.id !== roomId) {
+            //  Icrementing the unread message count
+            addUnreadMessage({
+              messageId: payload.messageId,
+              roomId: `${roomId}`,
+            });
+            const notificationSound = new Audio("/notification.mp3");
+            await notificationSound.play().catch((e) => {
+              console.error("Error playing sound:", e);
+            });
+          }
+          //
+          if (!selectedRoom) {
+            //  add unread message
+            addUnreadMessage({
+              messageId: payload.messageId,
+              roomId: payload.roomId,
+            });
+          }
         }
-        // message
-        if (
-          selectedRoom &&
-          selectedRoom.id === roomId &&
-          data.userId !== sessionData.user.userId
-        ) {
-          // updating message status to as as room is selected
-          updateMessageStatus(roomId, data.messageId);
-          const message = new Audio("/message.mp3");
-          await message.play().catch((e) => {
-            console.error("Error playing sound:", e);
-          });
-        }
 
-        // notification
-        if (selectedRoom && selectedRoom.id !== roomId) {
-          //  Icrementing the unread message count
-          addUnreadMessage({ messageId: data.messageId, roomId: `${roomId}` });
-          const notificationSound = new Audio("/notification.mp3");
-          await notificationSound.play().catch((e) => {
-            console.error("Error playing sound:", e);
-          });
-        }
-        //
-        if (!selectedRoom) {
-          //  add unread message
-          addUnreadMessage({ messageId: data.messageId, roomId: data.roomId });
+        if (sessionData.user.userId !== payload.userId) {
+          if (type === "typing") {
+            setIsTypingInTheRoom((currentState) => {
+              const updatedState: typeof currentState = {
+                ...currentState,
+                [`${payload.roomId}`]: {
+                  isTyping: true,
+                  userId: payload.userId,
+                },
+              };
+
+              return updatedState;
+            });
+          }
+          //
+          if (type === "not-typing") {
+            setIsTypingInTheRoom((currentState) => {
+              const updatedState: typeof currentState = {
+                ...currentState,
+                [`${payload.roomId}`]: {
+                  isTyping: false,
+                  userId: payload.userId,
+                },
+              };
+
+              return updatedState;
+            });
+          }
         }
       };
 
       // Handle WebSocket errors
       socket.onerror = (error) => {
-        // console.error("WebSocket error:", error);
+        console.error("WebSocket error:", error);
       };
 
       // Clean up on unmount
       return () => {
         socket.close();
-        // console.log("WebSocket closed", roomId);
       };
     }
   }, [sessionData, selectedRoom, selectedUser]);
@@ -152,7 +199,7 @@ export function useWebSocket({ roomId }: { roomId?: number }) {
 //send message
 export const useSendMessage = (roomId?: number) => {
   const { data: sessionData } = useSession();
-  const { isFriendTyping, selectedRoom } = useChatPanle();
+
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -179,7 +226,6 @@ export const useSendMessage = (roomId?: number) => {
         setIsConnected(true);
         setSocket(socketConnection);
 
-        // console.log("room chat connected with:", roomId);
         socketConnection.send(
           JSON.stringify({
             type: "join",
@@ -207,7 +253,7 @@ export const useSendMessage = (roomId?: number) => {
       // Clean up on unmount
       return () => {
         socketConnection.close();
-        // console.log("WebSocket closed", roomId);
+
         setIsConnected(false);
         setSocket(null);
       };
@@ -259,38 +305,27 @@ export const useSendMessage = (roomId?: number) => {
     isConnected,
   ]);
 
+  // notifying other user's that we are typing
   const handleSendTypingNotifiction = () => {
     if (!sessionData) {
       toast.error("Not loged in");
       return;
     }
 
-    if (!socket || !isConnected || !selectedRoom) {
+    if (!socket || !isConnected) {
       return;
     }
-    if (isFriendTyping[`${selectedRoom.id}`]) {
-      socket.send(
-        JSON.stringify({
-          type: "typing",
-          payload: {
-            roomId,
-            userId: sessionData.user.userId,
-          },
-        })
-      );
-    }
 
-    debounce((roomId: string) => {
-      socket.send(
-        JSON.stringify({
-          type: "no-typing",
-          payload: {
-            roomId,
-            userId: sessionData.user.userId,
-          },
-        })
-      );
-    }, 1000)(`${selectedRoom.id}`);
+    socket.send(
+      JSON.stringify({
+        type: "typing",
+        payload: {
+          roomId: `${roomId}`,
+          userId: sessionData.user.userId,
+          uaserName: sessionData.user.name.split(" ")[0],
+        },
+      })
+    );
   };
 
   const sendTypingNotification = useCallback(handleSendTypingNotifiction, [
@@ -299,5 +334,30 @@ export const useSendMessage = (roomId?: number) => {
     isConnected,
   ]);
 
-  return { sendMessage, sendTypingNotification };
+  const sendUserStopTyping = useCallback(
+    debounce((setIsTyping: any) => {
+      if (!sessionData) {
+        toast.error("Not loged in");
+        return;
+      }
+
+      if (!socket || !isConnected || !roomId) {
+        return;
+      }
+
+      socket.send(
+        JSON.stringify({
+          type: "not-typing",
+          payload: {
+            roomId: `${roomId}`,
+            userId: sessionData.user.userId,
+          },
+        })
+      );
+      setIsTyping(false);
+    }, 1000),
+    [roomId, socket, isConnected]
+  );
+
+  return { sendMessage, sendTypingNotification, sendUserStopTyping };
 };

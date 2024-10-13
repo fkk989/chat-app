@@ -1,17 +1,32 @@
 "use client";
-import React from "react";
+import { ChatPanelContextProp } from "@/context/ChatPanelContext";
+import { debounce } from "@/hooks";
+import React, { use, useEffect, useState } from "react";
 import { RiSendPlaneFill } from "react-icons/ri";
 interface MessageInputProp {
   input: string;
   setInput: React.Dispatch<React.SetStateAction<string>>;
   onSubmit: () => void;
+  sendTypingNotification: () => void;
+  sendUserStopTyping: (setIsTyping: any) => void;
+  isTypingInTheRoom: ChatPanelContextProp["isTypingInTheRoom"];
 }
 
 const MessageInput: React.FC<MessageInputProp> = ({
   input,
   setInput,
   onSubmit,
+  sendTypingNotification,
+  sendUserStopTyping,
 }) => {
+  const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    if (isTyping) {
+      sendTypingNotification();
+    }
+  }, [isTyping]);
+
   return (
     <form
       onSubmit={(e) => {
@@ -28,6 +43,10 @@ const MessageInput: React.FC<MessageInputProp> = ({
           onChange={(e) => {
             const value = e.target.value;
             setInput(value);
+            if (!isTyping) {
+              setIsTyping(true);
+            }
+            sendUserStopTyping(setIsTyping);
           }}
           type="text"
           placeholder="Type your message"

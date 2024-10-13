@@ -31,7 +31,7 @@ const Root: React.FC<{
   const { ref } = useClickOutside(close);
   return (
     <DropdownMenuContext.Provider value={{ isOpen, toggle, close }}>
-      <div ref={ref} className={className} style={style}>
+      <div ref={ref} className={clsx("z-10", className)} style={style}>
         {children}
       </div>
     </DropdownMenuContext.Provider>
@@ -50,8 +50,11 @@ const Trigger: React.FC<{ children: React.ReactNode; className?: string }> = ({
   );
   return (
     <button
-      className={className}
-      onClick={toggle}
+      className={clsx("z-10", className)}
+      onClick={(e) => {
+        e.stopPropagation();
+        toggle();
+      }}
       style={{ backgroundColor: "transparent" }}
     >
       {children}
@@ -70,8 +73,8 @@ const Content: React.FC<{
     <div
       style={style}
       className={clsx(
+        "transition-all duration-[400] ease-out  z-10",
         className,
-        "transition-all duration-[400] ease-out origin-top-right",
         isOpen ? "scale-[1]" : "scale-0"
       )}
     >

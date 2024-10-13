@@ -11,9 +11,11 @@ export interface ChatPanelContextProp {
   setSearch: React.Dispatch<
     React.SetStateAction<ChatPanelContextProp["search"]>
   >;
-  isFriendTyping: { [roomId: string]: boolean };
-  setIsFriendTyping: React.Dispatch<
-    React.SetStateAction<ChatPanelContextProp["isFriendTyping"]>
+  isTypingInTheRoom: {
+    [roomId: string]: { isTyping: boolean; userId: string };
+  };
+  setIsTypingInTheRoom: React.Dispatch<
+    React.SetStateAction<ChatPanelContextProp["isTypingInTheRoom"]>
   >;
   latestMessages: { [roomId: string]: Room["chats"][number] };
   setLatestMessages: React.Dispatch<
@@ -62,7 +64,7 @@ export const ChatPanelContextProvider = ({
   children: React.ReactNode;
 }) => {
   //
-  const [isFriendTyping, setIsFriendTyping] = useState({});
+  const [isTypingInTheRoom, setIsTypingInTheRoom] = useState({});
   const [search, setSearch] = useState("");
   const [temporaryRoom, setTemporaryRoom] =
     useState<ChatPanelContextProp["temporaryRoom"]>(null);
@@ -89,8 +91,8 @@ export const ChatPanelContextProvider = ({
   return (
     <ChatPanelContext.Provider
       value={{
-        isFriendTyping,
-        setIsFriendTyping,
+        isTypingInTheRoom,
+        setIsTypingInTheRoom,
         search,
         setSearch,
         temporaryRoom,

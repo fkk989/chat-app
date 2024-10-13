@@ -2,17 +2,15 @@ import { DropdownMenu } from "./Dropdown";
 import React, { useState } from "react";
 import { IoMdMore } from "react-icons/io";
 import { clsx } from "clsx";
-import { signOut } from "next-auth/react";
 import LogoutBtn from "../buttons/LogoutBtn";
 
-export const MoreOptionsDropdown: React.FC = (prop) => {
+export const AllChatMoreOption: React.FC = () => {
   const [open, setOpen] = useState(false);
-
   return (
     <DropdownMenu.Root
       isOpen={open}
       setIsOpen={setOpen}
-      className=" flex flex-col justify-center cursor-pointer h-[55px] z-10 "
+      className={"flex flex-col justify-center cursor-pointer"}
     >
       <div className="relative h-[55px] flex justify-center">
         <DropdownMenu.Trigger>
@@ -26,10 +24,12 @@ export const MoreOptionsDropdown: React.FC = (prop) => {
           </div>
         </DropdownMenu.Trigger>
 
-        <DropdownMenu.Content className="absolute right-0 top-[60px]">
-          <div className="w-[200px] py-[10px]   flex flex-col bg-[#233138] rounded-md shadow-xl px-[20px]">
-            <LogoutBtn />
-          </div>
+        <DropdownMenu.Content className="absolute right-0 top-[50px] origin-top-right">
+          <ul className="w-[200px] flex  items-center  bg-[#2A3942] rounded-sm shadow-xl">
+            <li className="w-full hover:bg-black px-[20px] py-[10px]">
+              <LogoutBtn />
+            </li>
+          </ul>
         </DropdownMenu.Content>
       </div>
     </DropdownMenu.Root>

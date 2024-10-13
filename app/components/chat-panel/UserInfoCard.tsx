@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import React, { useEffect } from "react";
 import { BiSolidUser } from "react-icons/bi";
+import { ChatDropdown } from "../dropdowns";
 
 type UserInfoCardProp = {
   userId?: string;
@@ -25,7 +26,7 @@ export const UserInfoCard: React.FC<UserInfoCardProp> = (prop) => {
     selectedRoom,
     unreadMessages,
     latestMessages,
-    setRoomMessages,
+    isTypingInTheRoom,
   } = useChatPanle();
   //
 
@@ -45,7 +46,7 @@ export const UserInfoCard: React.FC<UserInfoCardProp> = (prop) => {
         }
       }}
       className={clsx(
-        "relative w-full h-[80px] flex items-center gap-[20px] px-[15px] cursor-pointer",
+        "group relative w-full h-[80px] flex items-center gap-[20px] px-[15px] cursor-pointer",
         (selectedRoom?.id === prop?.roomId ||
           selectedUser?.id === prop?.userId) &&
           !prop.isSearchUser
@@ -53,6 +54,10 @@ export const UserInfoCard: React.FC<UserInfoCardProp> = (prop) => {
           : "hover:bg-[#ffffff0f]"
       )}
     >
+      {/* chat more dropdown */}
+
+      <ChatDropdown />
+
       {/* profile img */}
       <div className="w-[70px] h-[70px] flex justify-center items-center">
         <div
@@ -86,10 +91,15 @@ export const UserInfoCard: React.FC<UserInfoCardProp> = (prop) => {
                         )[0] + ": "}
                       </span>
                     )}
-                  {latestMessages[`${prop.roomId}`].content.slice(0, 30)}{" "}
+                  {isTypingInTheRoom[`${prop.roomId}`]?.isTyping && (
+                    <p className="text-[#04A784] text-[18px]">typing...</p>
+                  )}
+                  {!isTypingInTheRoom[`${prop.roomId}`]?.isTyping &&
+                    latestMessages[`${prop.roomId}`].content.slice(0, 30)}
                   {/* slice message and add dots inf message length excedes */}
                   <span className="text-[18px]">
-                    {latestMessages[`${prop.roomId}`].content.length > 30 &&
+                    {!isTypingInTheRoom[`${prop.roomId}`]?.isTyping &&
+                      latestMessages[`${prop.roomId}`].content.length > 30 &&
                       "........"}
                   </span>
                 </span>

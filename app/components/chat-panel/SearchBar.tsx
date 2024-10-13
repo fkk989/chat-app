@@ -19,7 +19,7 @@ export const SearchBar: React.FC<SearchBarProp> = (prop) => {
     setSearch,
     setSelectedRoom,
     setSelectedUser,
-    setRooms,
+    rooms,
     setTemporaryRoom,
   } = useChatPanle();
   const { users, setUsers, searchUsers, searching } = useSearchUsers();

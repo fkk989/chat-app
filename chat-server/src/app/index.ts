@@ -37,7 +37,7 @@ wss.on("connection", (ws: CustomWebSocket, req) => {
         parsedMessage.type === "not-typing"
       ) {
         const payload = parsedMessage.payload;
-        webSocketService.publishMessage(payload);
+        webSocketService.publishMessage(parsedMessage.type, payload);
       }
     } catch (e: any) {
       console.log("Error in on message", e);
@@ -48,7 +48,6 @@ wss.on("connection", (ws: CustomWebSocket, req) => {
     const roomId = ws.roomId;
     const userId = ws.userId;
     if (!roomId && !userId) return;
-    console.log("roomId:", roomId, "userId:", userId);
     webSocketService.removeUser({ roomId, userId });
   });
 });

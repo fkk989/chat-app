@@ -3,10 +3,11 @@ import { ChatResponse } from "@/utils/types";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import React from "react";
-import { TbTriangleFilled } from "react-icons/tb";
+import { MessageDropdown } from "../dropdowns/MessageDropdown";
+
 interface MessageCards extends ChatResponse {
   isGroupChat?: boolean;
-  sendTypingNotification: () => void;
+  dropDownOnTop: boolean;
 }
 
 export const MessageCards: React.FC<MessageCards> = (prop) => {
@@ -23,12 +24,25 @@ export const MessageCards: React.FC<MessageCards> = (prop) => {
       {/* message box */}
       <div
         className={clsx(
-          "relative w-fit max-w-[60%] p-[10px] text-white rounded-md",
+          "group  relative w-fit max-w-[60%]  p-[10px] pr-[30px] text-white rounded-md",
           prop.userId === sessionData.user.userId
-            ? "bg-[#015C4B] right-[30px] rounded-br-none"
-            : "bg-[#1F2C33] left-[30px] rounded-tl-none"
+            ? "bg-[#015C4B]  rounded-br-none"
+            : "bg-[#1F2C33]  rounded-tl-none"
         )}
       >
+        {/* message drop down */}
+        <MessageDropdown
+          position={
+            prop.userId === sessionData.user.userId
+              ? prop.dropDownOnTop
+                ? "top-left"
+                : "left"
+              : prop.dropDownOnTop
+              ? "top-right"
+              : "right"
+          }
+        />
+
         {prop.isGroupChat && sessionData.user.userId !== prop.userId && (
           <p className="aboslute top-[3px] left-[4px] text-[13px] text-[#03CF9C]">
             {prop.user.name.split(" ")[0]}

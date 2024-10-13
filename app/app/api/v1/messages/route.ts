@@ -14,11 +14,20 @@ export const GET = async (req: NextRequest) => {
     }
 
     const roomId = req.nextUrl.searchParams.get("roomId");
-    if (!roomId) {
-      return generateResponse(400, false, "Please provide the room id");
+    const page = req.nextUrl.searchParams.get("page");
+    const limit = req.nextUrl.searchParams.get("limit");
+    //
+    if (!roomId || !page || !limit) {
+      return generateResponse(
+        400,
+        false,
+        "one of the param not provided roomId, page, limit"
+      );
     }
+    //
+    const start = (parseInt(page) - 1) * parseInt(limit);
 
-    const messages = await prisma.chat.findMany({
+    const chats = await prisma.chat.findMany({
       where: { room: { id: parseInt(roomId) } },
       include: {
         user: {
@@ -27,9 +36,14 @@ export const GET = async (req: NextRequest) => {
           },
         },
       },
+      orderBy: { createdAt: "desc" },
+      skip: start,
+      take: parseInt(limit),
     });
+    console.log("room messages", chats);
+    //
     return generateResponse(200, true, "fetched room messages successfully", {
-      chats: messages,
+      chats: chats || [],
     });
   } catch (e: any) {
     return generateResponse(400, false, e.message);

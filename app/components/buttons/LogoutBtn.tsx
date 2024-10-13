@@ -5,7 +5,7 @@ import { LuLogOut } from "react-icons/lu";
 const LogoutBtn = () => {
   return (
     <div
-      className="flex items-center text-[#E91E62] hover:text-[#ff76a3]  gap-[5px]"
+      className=" flex items-center text-[#E91E62] hover:text-[#ff76a3] gap-[5px]"
       onClick={() => {
         signOut();
       }}

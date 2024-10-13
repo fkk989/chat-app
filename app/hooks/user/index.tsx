@@ -35,15 +35,17 @@ export function debounce<T extends (...args: any) => any>(
   cb: T,
   delay: number
 ): (...args: Parameters<T>) => ReturnType<T> | void {
-  let timeout: any;
+  let timeout: NodeJS.Timeout;
 
   return (...args): any => {
     clearTimeout(timeout);
+
     timeout = setTimeout(() => {
       cb(...args);
     }, delay);
   };
 }
+
 //
 export function useSearchUsers() {
   const { search } = useChatPanle();
@@ -54,22 +56,26 @@ export function useSearchUsers() {
     setSearching(false);
   }, [users]);
   // a debounced funtion to seach users when user stop typing for 500ms
-  const handleUserSearch = debounce(async (searchInput: string) => {
-    setSearching(true);
-    try {
-      if (!searchInput) return;
-      const data = (await axios.get(`/api/v1/user?search=${searchInput}`))
-        .data as SearchResponse;
 
-      if (data.success) {
-        setUsers(data.users);
+  const searchUsers = useCallback(
+    debounce(async (searchInput: string) => {
+      setSearching(true);
+      try {
+        console.log("search input:", searchInput);
+        if (!searchInput) return;
+        const data = (await axios.get(`/api/v1/user?search=${searchInput}`))
+          .data as SearchResponse;
+
+        if (data.success) {
+          setUsers(data.users);
+        }
+      } catch (error) {
+        setSearching(false);
+        console.log("user search error", error);
       }
-    } catch (error) {
-      setSearching(false);
-      console.log("user search error", error);
-    }
-  }, 500);
-  const searchUsers = useCallback(handleUserSearch, [search]);
+    }, 500),
+    []
+  );
 
   return { searchUsers, users, searching, setUsers };
 }

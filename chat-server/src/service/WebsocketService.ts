@@ -1,7 +1,7 @@
 import { Redis } from "ioredis";
 import { WebSocket } from "ws";
 import { createRedisClient } from "../clients/redis";
-import { Payload } from "../utils/types";
+import { MessageType, Payload } from "../utils/types";
 
 export class WebSocketService {
   private static _instance: WebSocketService | null = null;
@@ -73,12 +73,10 @@ export class WebSocketService {
       if (roomUsers) {
         const updatedUsers = roomUsers.filter((user) => user.userId !== userId);
         this.room.set(roomId, updatedUsers);
-        console.log(`User ${userId} removed from room ${roomId}`);
 
         // If the room is empty, delete the room and unsubscribe from the Redis channel
         if (updatedUsers.length === 0) {
           this.room.delete(roomId);
-          console.log(`Room ${roomId} deleted as it's empty.`);
 
           // Unsubscribe from Redis for this room
           this.sub.unsubscribe(roomId, (err) => {
@@ -86,7 +84,7 @@ export class WebSocketService {
               console.log(`Error unsubscribing from ${roomId}:`, err);
               return;
             }
-            console.log(`Unsubscribed from room ${roomId}`);
+
             this.subscribedRooms.delete(roomId); // Remove from the subscribed set
           });
         }
@@ -101,7 +99,6 @@ export class WebSocketService {
 
   public lookForMessages() {
     this.sub.on("message", (roomId, payload) => {
-      console.log("message recieved on ", process.pid);
       const usersInRoom = this.room.get(roomId);
       if (usersInRoom) {
         usersInRoom.forEach(({ ws }) => {
@@ -111,15 +108,20 @@ export class WebSocketService {
     });
   }
 
-  public publishMessage(payload: Payload<"message">): void {
+  public publishMessage(type: MessageType, payload: Payload<"message">): void {
     this.pub.publish(
       payload.roomId,
       JSON.stringify({
-        ...payload,
-        createdAt: new Date(Date.now()),
+        type,
+        payload:
+          type === "message"
+            ? {
+                ...payload,
+                createdAt: new Date(Date.now()),
+              }
+            : { ...payload },
       }),
       (err) => {
-        console.log("message sended", process.pid);
         if (err) {
           console.log(`Error publishing message:`, err);
           return;

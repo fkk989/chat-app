@@ -14,15 +14,15 @@ export const Profile = () => {
       <div className="flex flex-col gap-[10px] text-[#008069] mt-[50px]">
         {/* name */}
         <div className="flex flex-col gap-[10px]">
-          <h1 className="text-[14px] font-[500]">Your name</h1>
-          <h3 className="text-[20px] text-white capitalize">
+          <h1 className="text-[15px] font-[500]">Your name</h1>
+          <h3 className="text-[19px] text-white capitalize">
             {sessionData.user.name}
           </h3>
         </div>
         {/* email */}
         <div className="flex flex-col gap-[10px]">
-          <h1 className="text-[14px] font-[500]">Your email</h1>
-          <h3 className="text-[18px] text-white capitalize">
+          <h1 className="text-[15px] font-[500]">Your email</h1>
+          <h3 className="text-[17px] text-white capitalize">
             {sessionData.user.email}
           </h3>
         </div>

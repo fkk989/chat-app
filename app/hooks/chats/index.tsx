@@ -27,15 +27,26 @@ export function useGetUserChats() {
 }
 
 // this query return chats for a particular room
-export function useGetRoomChats(roomId?: number) {
+export function useGetRoomChats({
+  roomId,
+  page,
+  limit,
+}: {
+  roomId?: number;
+  page: number;
+  limit: number;
+}) {
   const { roomMessages, setRoomMessages } = useChatPanle();
   const query = useQuery({
     queryKey: ["get-room-chat"],
     queryFn: async () => {
       if (!roomId) return [];
 
-      const data = (await axios.get(`/api/v1/messages?roomId=${roomId}`))
-        .data as {
+      const data = (
+        await axios.get(
+          `/api/v1/messages?roomId=${roomId}&page=${1}&limit=${20}`
+        )
+      ).data as {
         success: boolean;
         message: string;
         chats: ChatResponse[];
@@ -53,8 +64,7 @@ export function useCreateRoom() {
   //
   const queryClient = useQueryClient();
   const { data: sessionData } = useSession();
-  const { setSelectedRoom, setRooms, setTemporaryRoom } = useChatPanle();
-  const navigate = useRouter();
+  const { setSelectedRoom, setTemporaryRoom } = useChatPanle();
   //
   const mutation = useMutation({
     mutationKey: ["create-room"],
@@ -181,7 +191,7 @@ export function useSetLatestMessage() {
     setLatestMessages((currentMessages) => {
       if (message) {
         const updatedMessages = { ...currentMessages, [roomId]: message };
-        console.log("updated message", updatedMessages);
+        // console.log("updated message", updatedMessages);
         return updatedMessages;
       }
       return currentMessages;
