@@ -40,7 +40,7 @@ export const GET = async (req: NextRequest) => {
       skip: start,
       take: parseInt(limit),
     });
-    console.log("room messages", chats);
+
     //
     return generateResponse(200, true, "fetched room messages successfully", {
       chats: chats || [],
