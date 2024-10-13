@@ -11,9 +11,9 @@ import {
 import { debounce } from "../user";
 
 // prduction
-// const WEB_SOCKET_URL = "wss://highly-scaleable-chat-app-1.onrender.com";
+const WEB_SOCKET_URL = "wss://chat-app-5sl1.onrender.com";
 // dev
-const WEB_SOCKET_URL = "ws://localhost:8000";
+// const WEB_SOCKET_URL = "ws://localhost:8000";
 
 // this function will put the room with latest message on top
 export function reshuffleRooms({
@@ -125,7 +125,8 @@ export function useWebSocket({ roomId }: { roomId?: number }) {
             // updating message status to true if room is selected room is selected
             //
             setRoomMessages((currentMessages) => {
-              const updatedMessages = [...currentMessages, tempMessageObj];
+              const updatedMessages = [tempMessageObj, ...currentMessages];
+              console.log("updated messaged: ", updatedMessages);
               return updatedMessages;
             });
           }
