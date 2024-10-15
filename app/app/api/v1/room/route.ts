@@ -124,7 +124,7 @@ export const POST = async (req: NextRequest) => {
     const { isGroupChat, users, name } = parsedBody.data;
     //
     if (isGroupChat) {
-      await prisma.room.create({
+      const room = await prisma.room.create({
         data: {
           name,
           isGroupChat,
@@ -132,7 +132,9 @@ export const POST = async (req: NextRequest) => {
           admins: { connect: { id: session.user.userId } },
         },
       });
-      return generateResponse(200, true, `group created with ${name}`);
+      return generateResponse(200, true, `group created with name: ${name}`, {
+        room,
+      });
     }
     //
     if (users.length !== 2) {

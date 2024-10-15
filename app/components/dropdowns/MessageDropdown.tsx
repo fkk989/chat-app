@@ -42,7 +42,6 @@ export const MessageDropdown = ({
                 : "right-0   translate-y-[-80%]  translate-x-[90%] origin-bottom-left"
             )}
           >
-            {/* TODO: CREATE THE DORP DOWN COMPONET */}
             <ul className="w-[200px] bg-[#2A3942] justify-center py-[5px] ">
               <li
                 onClick={() => {

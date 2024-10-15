@@ -60,7 +60,7 @@ export function useGetRoomChats({
   return { query, messages: roomMessages, setMessages: setRoomMessages };
 }
 //
-export function useCreateRoom() {
+export function useCreateOneToOneChat() {
   //
   const queryClient = useQueryClient();
   const { data: sessionData } = useSession();
@@ -91,8 +91,13 @@ export function useCreateRoom() {
       };
 
       if (data.success) {
-        await addMessageToDb(input, data.room.id);
-
+        const resData = await addMessageToDb(input, data.room.id);
+        if (resData?.success) {
+          const message = new Audio("/sending-message.mp3");
+          await message.play().catch((e) => {
+            console.error("Error playing sound:", e);
+          });
+        }
         setTemporaryRoom(null);
         setSelectedRoom({
           id: data.room.id,
@@ -114,6 +119,56 @@ export function useCreateRoom() {
   return { mutation };
 }
 //
+export function useCreateGroupChat() {
+  //
+  const { data: sessionData } = useSession();
+  const { setSelectedRoom, setSelectedTab } = useChatPanle();
+  //
+  const mutation = useMutation({
+    mutationKey: ["create-room"],
+    mutationFn: async ({
+      users,
+      groupName,
+    }: {
+      users: string[];
+      groupName: string;
+    }) => {
+      if (!sessionData) {
+        return toast.error("Not logedIn", { id: "create-room" });
+      }
+
+      const data = (
+        await axios.post("/api/v1/room", {
+          name: groupName,
+          users: [...users, sessionData.user.userId],
+          isGroupChat: true,
+        })
+      ).data as {
+        success: boolean;
+        message: string;
+        room: Room;
+      };
+
+      if (data.success) {
+        setSelectedRoom({
+          id: data.room.id,
+          name: data.room.name || "",
+          isGroupChat: data.room.isGroupChat,
+        });
+        //
+        setSelectedTab("chats");
+      }
+      return data;
+    },
+
+    onError: (e) => {
+      console.log("error", e);
+      toast.error("error creating group", { id: "creating-room" });
+    },
+  });
+
+  return { mutation };
+}
 // a simple function to add message
 export async function addMessageToDb(input: string, roomId?: number) {
   if (!roomId) {
@@ -126,6 +181,7 @@ export async function addMessageToDb(input: string, roomId?: number) {
         roomId: roomId,
       })
     ).data as { success: boolean; message: string; createdMessage: Chat };
+
     return data;
   } catch (error) {
     toast.error("unable to add message to db");

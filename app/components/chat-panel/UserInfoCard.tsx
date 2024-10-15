@@ -69,7 +69,7 @@ export const UserInfoCard: React.FC<UserInfoCardProp> = (prop) => {
         </div>
       </div>
       {/* info  */}
-      <div className="w-full flex flex-col gap-[5px]">
+      <div className="w-full flex flex-col gap-[5px] overflow-hidden">
         <h2 className="w-full text-white text-[20px]">
           {!prop.isGroupChat ? prop.name?.split(" ")[0] : prop.name}
         </h2>
