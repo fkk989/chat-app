@@ -1,28 +1,25 @@
-import { ChatPanelContextProp, useChatPanle } from "@/context/ChatPanelContext";
+import { useChatPanle } from "@/context/ChatPanelContext";
 import { useSearchUsers } from "@/hooks";
-import clsx from "clsx";
-import React, { useEffect, useState } from "react";
+
+import React, { useEffect } from "react";
 import { GoSearch } from "react-icons/go";
 import { UserInfoCard } from "./UserInfoCard";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { RoomResponse } from "@/utils/types";
-import { Room } from "@/context/ChatPanelContext";
-import { emit } from "process";
+import { useSession } from "next-auth/react";
+
+//
 interface SearchBarProp {
   className?: string;
   inputProp?: React.Component<HTMLInputElement>;
+  onClick: (data: { name: string; id: string; email: string }) => void;
+  isGroupChat?: boolean;
 }
 
 export const SearchBar: React.FC<SearchBarProp> = (prop) => {
-  const {
-    search,
-    setSearch,
-    setSelectedRoom,
-    setSelectedUser,
-    rooms,
-    setTemporaryRoom,
-  } = useChatPanle();
-  const { users, setUsers, searchUsers, searching } = useSearchUsers();
+  const { search, setSearch } = useChatPanle();
+  const { users, setUsers, searchUsers, searching } = useSearchUsers(
+    prop.isGroupChat
+  );
 
   useEffect(() => {
     if (!search) {
@@ -30,8 +27,10 @@ export const SearchBar: React.FC<SearchBarProp> = (prop) => {
     }
   }, [search]);
 
+  // not shoing loged in user while creating group chat
+
   return (
-    <div className="relative w-[95%] ">
+    <div className="relative w-[95%]">
       {/* input */}
       <div className="w-full h-[40px] flex items-center justify-between gap-[20px] bg-[#1F2C33] rounded-md mt-[20px]">
         <div className="w-[60px] flex justify-center items-center">
@@ -53,7 +52,9 @@ export const SearchBar: React.FC<SearchBarProp> = (prop) => {
           onChange={(e) => {
             e.preventDefault();
             const value = e.target.value;
+            // setting search value
             setSearch(value);
+            // function to search users
             searchUsers(value);
           }}
           type="text"
@@ -70,10 +71,8 @@ export const SearchBar: React.FC<SearchBarProp> = (prop) => {
                 <div
                   key={id}
                   onClick={() => {
-                    setSelectedRoom(null);
-                    setSelectedUser({ id, name, email });
                     setSearch("");
-                    setTemporaryRoom({ userID: id, name: name, email });
+                    prop.onClick({ id, name, email });
                   }}
                   className="w-full flex flex-col justify-center items-center"
                 >

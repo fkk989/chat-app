@@ -2,7 +2,7 @@
 import { ChatResponse, RoomResponse } from "@/utils/types";
 import { createContext, useContext, useState } from "react";
 
-type Tabs = "chats" | "profile";
+type Tabs = "chats" | "profile" | "create-group";
 
 export type Room = RoomResponse["rooms"][number];
 

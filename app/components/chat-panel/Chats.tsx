@@ -4,7 +4,7 @@ import { useSendMessage } from "@/hooks/websocket";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { BiSolidUser } from "react-icons/bi";
 import MessageInput from "./MessageInput";
-import { useCreateRoom, useGetRoomChats } from "@/hooks";
+import { useCreateOneToOneChat, useGetRoomChats } from "@/hooks";
 import toast from "react-hot-toast";
 import { MessageCards } from "./MessageCards";
 import { PageObserver } from "../PageObserver";
@@ -22,7 +22,7 @@ export const Chats = () => {
   const { sendMessage, sendTypingNotification, sendUserStopTyping } =
     useSendMessage(selectedRoom?.id);
   //
-  const { mutation: createRoomMutation } = useCreateRoom();
+  const { mutation: createRoomMutation } = useCreateOneToOneChat();
   //
 
   //

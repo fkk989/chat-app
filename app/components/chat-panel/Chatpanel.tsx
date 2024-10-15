@@ -3,9 +3,20 @@ import React, { useEffect } from "react";
 import { Sidebar } from "../Sidebar";
 import { ChatRoomsSection } from "./ChatRoomsSection";
 import { Chats } from "./Chats";
-import { useChatPanle } from "@/context/ChatPanelContext";
+import { ChatPanelContextProp, useChatPanle } from "@/context/ChatPanelContext";
 import { Profile } from "../tabs";
+import CreateGroup from "../tabs/CreateGroup";
 
+function showSelectedTab(selectedTab: ChatPanelContextProp["selectedTab"]) {
+  switch (selectedTab) {
+    case "chats":
+      return <ChatRoomsSection />;
+    case "profile":
+      return <Profile />;
+    case "create-group":
+      return <CreateGroup />;
+  }
+}
 export const Chatpanel = () => {
   const { selectedUser, selectedRoom, selectedTab } = useChatPanle();
   useEffect(() => {});
@@ -14,11 +25,7 @@ export const Chatpanel = () => {
       {/* side bar */}
       <Sidebar />
       {/* all friends */}
-      {selectedTab === "chats" ? (
-        <ChatRoomsSection />
-      ) : (
-        selectedTab === "profile" && <Profile />
-      )}
+      {showSelectedTab(selectedTab)}
       {/* chats messages */}
       {selectedUser || selectedRoom ? (
         <Chats />

@@ -24,6 +24,7 @@ export const ChatRoomsSection = () => {
     temporaryRoom,
     setTemporaryRoom,
     unreadMessages,
+    setSelectedTab,
   } = useChatPanle();
 
   const { addUnreadMessage } = useSetUnreadMessage();
@@ -62,14 +63,25 @@ export const ChatRoomsSection = () => {
       <div className="flex items-center justify-between px-[30px] mt-[20px]">
         <h1 className="text-[25px] text-white font-bold">Chats</h1>
         <div className="flex items-center gap-[15px]">
-          <MdOutlineAddToPhotos className="text-[25px] text-gray-400 hover:text-white cursor-pointer" />
+          <MdOutlineAddToPhotos
+            onClick={() => {
+              setSelectedTab("create-group");
+            }}
+            className="text-[25px] text-gray-400 hover:text-white cursor-pointer"
+          />
           <AllChatMoreOption />
         </div>
       </div>
       {/* search bar */}
 
       <div className="w-full flex justify-center items-center">
-        <SearchBar />
+        <SearchBar
+          onClick={({ id, name, email }) => {
+            setSelectedRoom(null);
+            setSelectedUser({ id, name, email });
+            setTemporaryRoom({ userID: id, name: name, email });
+          }}
+        />
       </div>
 
       {/* Chats */}
