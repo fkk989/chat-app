@@ -15,10 +15,10 @@ export function useCheckForConection() {
           id: "connecting-to-server",
         });
         //
-        const prodUrl = "https://chat-app-5sl1.onrender.com/health";
-        const devUrl = "http://localhost:8000/health";
+        const path = "https://chat-app-5sl1.onrender.com/health";
+        // const path = "http://localhost:8000/health";
 
-        const data = (await axios.get(devUrl)).data;
+        const data = (await axios.get(path)).data;
 
         if (data.success) {
           toast.success("Connected to server", { id: "connecting-to-server" });
