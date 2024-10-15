@@ -11,9 +11,9 @@ import {
 import { debounce } from "../user";
 
 // prduction
-// const WEB_SOCKET_URL = "wss://chat-app-5sl1.onrender.com";
+const WEB_SOCKET_URL = "wss://chat-app-5sl1.onrender.com";
 // dev
-const WEB_SOCKET_URL = "ws://localhost:8000";
+// const WEB_SOCKET_URL = "ws://localhost:8000";
 
 // this function will put the room with latest message on top
 export function reshuffleRooms({
