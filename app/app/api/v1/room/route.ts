@@ -15,7 +15,7 @@ export const GET = async (req: NextRequest) => {
     }
 
     // room associated to both users
-    const rooms = await prisma.room.findMany({
+    const rooms = await prisma.chatRoom.findMany({
       where: {
         users: { some: { id: session.user.userId } },
       },
@@ -124,7 +124,7 @@ export const POST = async (req: NextRequest) => {
     const { isGroupChat, users, name } = parsedBody.data;
     //
     if (isGroupChat) {
-      const room = await prisma.room.create({
+      const room = await prisma.chatRoom.create({
         data: {
           name,
           isGroupChat,
@@ -150,7 +150,7 @@ export const POST = async (req: NextRequest) => {
     //
     if (users[0] === users[1] && users[0] === session.user.userId) {
       // checking if user already have a self chat rooom
-      roomExist = await prisma.room.findFirst({
+      roomExist = await prisma.chatRoom.findFirst({
         where: {
           isGroupChat: false,
           users: {
@@ -169,7 +169,7 @@ export const POST = async (req: NextRequest) => {
       (users[0] === session.user.userId || users[1] === session.user.userId)
     ) {
       //
-      roomExist = await prisma.room.findFirst({
+      roomExist = await prisma.chatRoom.findFirst({
         where: {
           isGroupChat: false,
           AND: users.map((id) => ({ users: { some: { id } } })),
@@ -187,7 +187,7 @@ export const POST = async (req: NextRequest) => {
         "room already exist with both the user"
       );
     }
-    const room = await prisma.room.create({
+    const room = await prisma.chatRoom.create({
       data: {
         isGroupChat,
         users: { connect: users.map((id) => ({ id })) },

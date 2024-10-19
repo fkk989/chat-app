@@ -27,7 +27,7 @@ export const GET = async (req: NextRequest) => {
     //
     const start = (parseInt(page) - 1) * parseInt(limit);
 
-    const chats = await prisma.chat.findMany({
+    const chats = await prisma.message.findMany({
       where: { room: { id: parseInt(roomId) } },
       include: {
         user: {
@@ -60,7 +60,7 @@ export const POST = async (req: NextRequest) => {
 
     const { message, roomId } = await req.json();
 
-    const createdMessage = await prisma.chat.create({
+    const createdMessage = await prisma.message.create({
       data: {
         user: { connect: { id: session.user.userId } },
         room: { connect: { id: roomId } },

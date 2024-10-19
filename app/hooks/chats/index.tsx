@@ -1,6 +1,6 @@
 import { useChatPanle } from "@/context/ChatPanelContext";
 import { ChatResponse, RoomResponse } from "@/utils/types";
-import { Chat, Room } from "@prisma/client";
+import { ChatRoom, Message } from "@prisma/client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -87,7 +87,7 @@ export function useCreateOneToOneChat() {
       ).data as {
         success: boolean;
         message: string;
-        room: Room;
+        room: ChatRoom;
       };
 
       if (data.success) {
@@ -146,7 +146,7 @@ export function useCreateGroupChat() {
       ).data as {
         success: boolean;
         message: string;
-        room: Room;
+        room: ChatRoom;
       };
 
       if (data.success) {
@@ -180,7 +180,7 @@ export async function addMessageToDb(input: string, roomId?: number) {
         message: input,
         roomId: roomId,
       })
-    ).data as { success: boolean; message: string; createdMessage: Chat };
+    ).data as { success: boolean; message: string; createdMessage: Message };
 
     return data;
   } catch (error) {

@@ -87,7 +87,7 @@ export function useSearchUsers(isGroupChat?: boolean) {
         console.log("user search error", error);
       }
     }, 500),
-    []
+    [sessionData]
   );
 
   return { searchUsers, users, searching, setUsers };
