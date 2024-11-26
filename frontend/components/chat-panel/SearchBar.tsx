@@ -5,7 +5,6 @@ import React, { useEffect } from "react";
 import { GoSearch } from "react-icons/go";
 import { UserInfoCard } from "./UserInfoCard";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { useSession } from "next-auth/react";
 
 //
 interface SearchBarProp {

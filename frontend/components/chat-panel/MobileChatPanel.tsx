@@ -17,25 +17,15 @@ function showSelectedTab(selectedTab: ChatPanelContextProp["selectedTab"]) {
       return <CreateGroup />;
   }
 }
-export const Chatpanel = () => {
+export const MobileChatpanel = () => {
   const { selectedUser, selectedRoom, selectedTab } = useChatPanle();
-  useEffect(() => {});
+
   return (
-    <div className="w-full h-full flex">
+    <div className="mobile:hidden w-full h-full flex ">
       {/* side bar */}
-      <Sidebar />
+      {/* {(!selectedUser || !selectedRoom) && <Sidebar />} */}
       {/* all friends */}
-      {showSelectedTab(selectedTab)}
-      {/* chats messages */}
-      {selectedUser || selectedRoom ? (
-        <Chats />
-      ) : (
-        <div className="w-full h-full flex justify-center items-center bg-[#1F2C33]">
-          <h1 className=" text-white text-[40px] font-bold">
-            Starts your chit chats
-          </h1>
-        </div>
-      )}
+      {selectedUser || selectedRoom ? <Chats /> : showSelectedTab(selectedTab)}
     </div>
   );
 };

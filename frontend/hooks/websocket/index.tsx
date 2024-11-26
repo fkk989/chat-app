@@ -215,7 +215,7 @@ export const useSendMessage = (roomId?: number) => {
         messageId?: string;
       };
     }[]
-  >([]); // Queue for messages
+  >([]); // Queue for pending messages
 
   useEffect(() => {
     if (sessionData && roomId) {

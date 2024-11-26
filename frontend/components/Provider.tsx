@@ -12,7 +12,7 @@ export const Provider = ({ children }: { children: React.ReactNode }) => {
       <SessionProvider>
         <QueryClientProvider client={queryClient}>
           <ChatPanelContextProvider>{children}</ChatPanelContextProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </QueryClientProvider>
       </SessionProvider>
     </>

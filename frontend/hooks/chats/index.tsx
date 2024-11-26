@@ -122,7 +122,7 @@ export function useCreateOneToOneChat() {
 export function useCreateGroupChat() {
   //
   const { data: sessionData } = useSession();
-  const { setSelectedRoom, setSelectedTab } = useChatPanle();
+  const { setSelectedRoom, setSelectedTab, setSelectedUser } = useChatPanle();
   //
   const mutation = useMutation({
     mutationKey: ["create-room"],
@@ -155,6 +155,7 @@ export function useCreateGroupChat() {
           name: data.room.name || "",
           isGroupChat: data.room.isGroupChat,
         });
+        setSelectedUser(null);
         //
         setSelectedTab("chats");
       }

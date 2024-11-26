@@ -11,13 +11,13 @@ export const Sidebar = () => {
   //
 
   return (
-    <div className="w-[110px] h-full flex flex-col items-center justify-between  bg-[#1F2C33]">
+    <div className="max-mobile:fixed max-mobile:gap-[50px] bottom-0 w-full h-[50px]  mobile:w-[110px] mobile:h-full flex items-center  mobile:flex-col justify-center mobile:justify-between  bg-[#1F2C33]">
       <div
         onClick={() => {
           setSelectedTab("chats");
         }}
         className={clsx(
-          "mt-[40px] w-[40px] h-[40px] flex justify-center items-center rounded-full cursor-pointer",
+          "mobile:mt-[40px] w-[40px] h-[40px] flex justify-center items-center rounded-full cursor-pointer",
           selectedTab === "chats" ? "bg-[#ffffff24]" : "hover:bg-[#ffffff4e]"
         )}
       >
@@ -27,12 +27,13 @@ export const Sidebar = () => {
           <PiWechatLogoLight className="text-[25px] text-white" />
         )}
       </div>
+      <div className="mobile:hidden w-[2px] h-[80%] bg-gray-400"></div>
       <div
         onClick={() => {
           setSelectedTab("profile");
         }}
         className={clsx(
-          "relative mb-[30px] w-[40px] h-[40px] flex justify-center items-end rounded-full overflow-hidden bg-[#697175] cursor-pointer",
+          "relative mobile:mb-[30px] w-[40px] h-[40px] flex justify-center items-end rounded-full overflow-hidden bg-[#697175] cursor-pointer",
           selectedTab === "profile" && "border-[3px] border-gray-400"
         )}
       >

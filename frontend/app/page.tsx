@@ -1,5 +1,6 @@
 "use client";
 import { Chatpanel } from "@/components/chat-panel";
+import { MobileChatpanel } from "@/components/chat-panel/MobileChatPanel";
 import { useCheckForConection } from "@/hooks";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
@@ -10,8 +11,9 @@ export default function Home() {
   useCheckForConection();
 
   return (
-    <div className="w-screen h-screen bg-[#0C1318] p-[20px]">
+    <div className="w-screen h-screen bg-[#0C1318] mobile:p-[20px]">
       <Chatpanel />
+      <MobileChatpanel />
     </div>
   );
 }

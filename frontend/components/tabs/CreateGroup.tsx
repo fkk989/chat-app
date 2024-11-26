@@ -36,8 +36,8 @@ const CreateGroup = () => {
   }, []);
 
   return (
-    <div className="relative w-[45%] h-full flex flex-col bg-[#111B21] border-l-[1px] border-r-[1px] border-[#ffffff30]">
-      <div className="flex items-center gap-[15px] mt-[20px] box-border px-[30px]">
+    <div className="relative w-full mobile:w-[45%] h-full flex flex-col bg-[#111B21] border-l-[1px] border-r-[1px] border-[#ffffff30]">
+      <div className="flex items-center gap-[15px] mt-[20px] box-border px-[5px] mobile:px-[30px]">
         <IoMdArrowBack
           onClick={() => {
             setSelectedTab("chats");

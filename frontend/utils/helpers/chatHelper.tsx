@@ -10,7 +10,7 @@ interface handleUserInfoOnClickProp {
   friendEmail: string;
 }
 // handle userInfoCard onClick
-export const handleUserInfoOnClick = (
+export const handleChatRoomOnClick = (
   prop: Room,
   {
     setSelectedUser,

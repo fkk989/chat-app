@@ -8,7 +8,7 @@ import { useCreateOneToOneChat, useGetRoomChats } from "@/hooks";
 import toast from "react-hot-toast";
 import { MessageCards } from "./MessageCards";
 import { PageObserver } from "../PageObserver";
-
+import { IoIosArrowRoundBack } from "react-icons/io";
 //
 export const Chats = () => {
   //using page and limit state for infinty scroll
@@ -17,7 +17,13 @@ export const Chats = () => {
   //
   const messageBox = useRef<HTMLDivElement | null>(null);
   const [input, setInput] = useState("");
-  const { selectedUser, selectedRoom, isTypingInTheRoom } = useChatPanle();
+  const {
+    selectedUser,
+    setSelectedUser,
+    selectedRoom,
+    setSelectedRoom,
+    isTypingInTheRoom,
+  } = useChatPanle();
   //
   const { sendMessage, sendTypingNotification, sendUserStopTyping } =
     useSendMessage(selectedRoom?.id);
@@ -84,11 +90,25 @@ export const Chats = () => {
   }, [selectedUser, selectedRoom, input]);
   //
   return (
-    <div className="  w-full h-full flex flex-col  overflow-hidden ">
+    <div className=" w-full h-full flex flex-col  overflow-hidden ">
       {/* topbar */}
 
-      <div className="  w-full h-[70px] flex  justify-between items-center  bg-[#1F2C33] pl-[20px] pr-[20px]">
-        <div className="flex items-center gap-[20px]">
+      <div className="  w-full h-[70px] flex  justify-between items-center  bg-[#1F2C33] mobile:pl-[20px] mobile:pr-[20px]">
+        <div className="flex items-center gap-[15px]">
+          {/* backarrow in mobile view */}
+          <button
+            onClick={() => {
+              setSelectedRoom(null);
+              setSelectedUser(null);
+            }}
+            className="mobile:hidden"
+          >
+            <IoIosArrowRoundBack
+              className={
+                "text-[40px] font-bold hover:text-gray-300 text-gray-400 cursor-pointer"
+              }
+            />
+          </button>
           {/* profile pic */}
           <div
             className={
@@ -111,7 +131,7 @@ export const Chats = () => {
       {/* chats*/}
       <div
         ref={messageBox}
-        className="relative w-full h-full flex flex-col-reverse gap-[7px] bg-[#0c1318f0] bg-blend-multiply  overflow-y-scroll overflow-x-hidden px-[30px] py-[30px]"
+        className="relative w-full h-full flex flex-col-reverse gap-[7px] bg-[#0c1318f0] bg-blend-multiply  overflow-y-scroll overflow-x-hidden px-[5px] mobile:px-[30px] py-[30px]"
         style={{
           backgroundImage: "url('/chat-bg.png')",
           backgroundSize: "calc(100%/3)",

@@ -46,7 +46,6 @@ export function debounce<T extends (...args: any) => any>(
     }, delay);
   };
 }
-
 //
 export function useSearchUsers(isGroupChat?: boolean) {
   const { data: sessionData } = useSession();
