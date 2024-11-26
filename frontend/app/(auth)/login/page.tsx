@@ -13,10 +13,10 @@ const Login = async () => {
   if (session?.user) redirect("/");
   //
   return (
-    <div className="w-screen  flex flex-col justify-center items-center">
+    <div className="w-screen ">
       {/* app bar */}
-      <div className="sticky top-0 flex items-center justify-between w-screen h-[70px] border-b-[1px] border-[#dfddd2] px-[100px]">
-        <h1 className="text-[25px] font-bold">Chit Chat</h1>
+      <div className="sticky top-0 flex items-center justify-between w-screen h-[70px] border-b-[1px] border-[#dfddd2] px-[10px] mobile:px-[100px]">
+        <h1 className="w-full text-[25px] font-bold">Chit Chat</h1>
         <LinkButton
           title="Sign Up"
           href="/signup"
@@ -24,15 +24,11 @@ const Login = async () => {
         />
       </div>
       {/* content */}
-      <div className="flex flex-col mt-[100px] ">
-        <div className="flex justify-between items-center gap-[50px]">
-          {/* text info */}
+      <div className="w-full  flex flex-col justify-center items-center mt-[20px] mobile:mt-[100px] ">
+        {/* text info */}
 
-          {/* form */}
-          <LoginForm />
-        </div>{" "}
-        {/* companies trust */}
-        <div></div>
+        {/* form */}
+        <LoginForm />
       </div>
     </div>
   );

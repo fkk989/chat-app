@@ -15,7 +15,7 @@ export const SignUpForm = () => {
     mutation.mutate(data);
   }
   return (
-    <div className="w-[600px]  flex flex-col items-center gap-[20px] border-[#dfddd2] border-[1px] rounded-md py-[20px]">
+    <div className="w-[90%] mobile:w-[600px]  flex flex-col items-center gap-[20px] border-[#dfddd2] border-[1px] rounded-md py-[20px]">
       <GoolgeLogin
         text="Signup with google"
         style={{ width: "90%", height: "50px" }}

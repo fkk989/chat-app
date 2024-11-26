@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 export const LoginForm = () => {
   const navigate = useRouter();
   return (
-    <div className=" w-[600px]  flex flex-col items-center gap-[20px] border-[#dfddd2] border-[1px] rounded-md py-[20px]">
+    <div className="w-[350px] mobile:w-[600px]  flex flex-col items-center gap-[20px] border-[#dfddd2] border-[1px] rounded-md py-[20px]">
       <GoolgeLogin
         text="Login with google"
         style={{ width: "90%", height: "50px" }}

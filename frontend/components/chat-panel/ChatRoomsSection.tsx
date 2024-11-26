@@ -85,7 +85,10 @@ export const ChatRoomsSection = () => {
       </div>
 
       {/* Chats */}
-      <div className="w-full mt-[20px]">
+      <div
+        id="chat-room-sections"
+        className="w-full mt-[20px] overflow-scroll overflow-x-hidden"
+      >
         {temporaryRoom && (
           <div
             onClick={() => {
